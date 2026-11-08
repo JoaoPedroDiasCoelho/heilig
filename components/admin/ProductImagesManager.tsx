@@ -14,7 +14,7 @@ import {
 } from "@/lib/product-image-upload.client";
 
 type ProductImageItem = {
-  id: number;
+  id: number | null;
   image_url: string;
   public_id: string | null;
   is_featured: boolean;
@@ -76,7 +76,8 @@ export default function ProductImagesManager({ productId, images }: ProductImage
     setBusy(false);
   }
 
-  async function setFeatured(imageId: number) {
+  async function setFeatured(imageId: number | null) {
+    if (imageId === null) return;
     setBusy(true);
     setMessage("");
     try {
@@ -93,6 +94,7 @@ export default function ProductImagesManager({ productId, images }: ProductImage
   }
 
   async function removeImage(image: ProductImageItem) {
+    if (image.id === null) return;
     if (!window.confirm("Remover esta imagem da galeria?")) return;
     setBusy(true);
     setMessage("");
@@ -140,13 +142,13 @@ export default function ProductImagesManager({ productId, images }: ProductImage
       ) : (
         <div className="admin-image-grid">
           {images.map((image) => (
-            <article className="admin-image-card" key={image.id}>
+            <article className="admin-image-card" key={image.id ?? image.image_url}>
               <div className="admin-image-preview">
                 <Image src={image.image_url} alt="" fill sizes="(max-width: 600px) 45vw, 180px" unoptimized />
               </div>
               {image.is_featured ? (
                 <span className="admin-featured-badge">Destaque da loja</span>
-              ) : (
+              ) : image.id !== null ? (
                 <button
                   className="admin-featured-button"
                   type="button"
@@ -155,14 +157,22 @@ export default function ProductImagesManager({ productId, images }: ProductImage
                 >
                   Definir como destaque
                 </button>
+              ) : (
+                <span className="admin-featured-badge">Imagem principal</span>
               )}
               <button
                 className="admin-image-remove"
                 type="button"
                 aria-label="Remover imagem da galeria"
-                disabled={busy || images.length <= 1}
-                title={images.length <= 1 ? "O produto precisa manter uma imagem" : "Remover imagem"}
-                onClick={() => void removeImage(image)}
+                disabled={busy || images.length <= 1 || image.id === null}
+                title={
+                  image.id === null
+                    ? "Imagem principal do cadastro"
+                    : images.length <= 1
+                      ? "O produto precisa manter uma imagem"
+                      : "Remover imagem"
+                }
+                onClick={() => image.id !== null && void removeImage(image)}
               >
                 ×
               </button>

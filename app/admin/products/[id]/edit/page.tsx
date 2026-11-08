@@ -53,6 +53,17 @@ export default async function EditProductPage({ params, searchParams }: EditProd
      ORDER BY is_featured DESC, sort_order, id`,
     [productId]
   );
+  const galleryImages = !product.image || gallery.rows.some((image) => image.image_url === product.image)
+    ? gallery.rows
+    : [
+        {
+          id: null,
+          image_url: product.image,
+          public_id: null,
+          is_featured: true,
+        },
+        ...gallery.rows,
+      ];
 
   return (
     <AdminShell user={user} activeSection="products">
@@ -64,7 +75,7 @@ export default async function EditProductPage({ params, searchParams }: EditProd
       </div>
       {notice && <p className="admin-alert admin-alert-success">{notice}</p>}
       <ProductForm product={product} error={error} />
-      <ProductImagesManager productId={productId} images={gallery.rows} />
+      <ProductImagesManager productId={productId} images={galleryImages} />
     </AdminShell>
   );
 }
