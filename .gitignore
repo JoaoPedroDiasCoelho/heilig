@@ -1,0 +1,42 @@
+# Dependências
+/node_modules
+/.pnp
+.pnp.js
+.history
+brag-output-2026-10-03-231913
+public/frames
+
+# Testes e Cobertura
+/coverage
+
+# Build e Produção do Next.js
+/.next/
+/out/
+/build
+
+# Ficheiros de Ambiente (mantém apenas o exemplo no repositório)
+.env
+.env*.local
+!.env.example
+
+# Logs de Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Sistema / Editor (macOS e VS Code)
+.DS_Store
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
