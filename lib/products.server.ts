@@ -57,8 +57,25 @@ export const getCatalogProducts = cache(async (): Promise<Product[]> => {
       `${SELECT_PRODUCTS} AND image <> '' ORDER BY sort_order ASC, id ASC`
     );
     return result.rows.map(toProduct);
-  } catch {
-    console.error("[catalog] Product listing query failed; showing an empty catalog.");
+  } catch (error) {
+    const code =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof error.code === "string" &&
+      /^[A-Za-z0-9_]{1,16}$/.test(error.code)
+        ? error.code
+        : "unknown";
+    const hint =
+      code === "42703"
+        ? "Check that db/product-catalog.sql was applied to the deployed database."
+        : code === "42P01"
+          ? "Check that db/schema.sql was applied to the deployed database."
+          : undefined;
+    console.error("[catalog] Product listing query failed; showing an empty catalog.", {
+      code,
+      hint,
+    });
     return [];
   }
 });

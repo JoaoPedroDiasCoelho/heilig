@@ -16,7 +16,6 @@ public/frames
 
 # Ficheiros de Ambiente (mantém apenas o exemplo no repositório)
 .env
-.env*.local
 !.env.example
 
 # Logs de Debug

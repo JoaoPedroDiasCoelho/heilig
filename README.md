@@ -66,3 +66,7 @@ Troque pelos dígitos do WhatsApp real da loja antes do deploy.
 ## Deploy
 
 O projeto está preparado para deploy como aplicação Next.js, por exemplo na Vercel.
+
+### Diagnóstico do banco no deploy
+
+Depois do deploy, abra `/api/health/database` no domínio da aplicação para verificar se o PostgreSQL está acessível e se as tabelas e migrações necessárias estão prontas. A resposta não expõe credenciais. Se faltar uma migração, o endpoint informa o arquivo SQL correspondente; se a conexão falhar, consulte as variáveis de ambiente e os logs de funções no painel da Vercel.
