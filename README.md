@@ -22,20 +22,18 @@ Abra `http://localhost:3000`.
 
 ## Catálogo PostgreSQL
 
-O catálogo da home, as páginas de produto e o sitemap leem `public.products` no servidor.
-Para ativar o banco:
+O catálogo da home, as páginas de produto e o sitemap leem `public.products` no servidor. Para conectar, configure `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` e `PGSSLMODE=require` em `.env.local` e nas variáveis privadas do ambiente de deploy. Para Supabase, use os valores de conexão PostgreSQL exibidos no painel do projeto. Quando os campos `PG*` estiverem completos, eles têm prioridade sobre `DATABASE_URL`. Como alternativa, configure somente `DATABASE_URL` com a connection string completa.
 
-1. Configure `DATABASE_URL` em `.env.local` (local) ou como variável privada no provedor de deploy. Não use o prefixo `NEXT_PUBLIC_` nem coloque credenciais no Git.
-2. Aplique [`db/schema.sql`](db/schema.sql) no banco PostgreSQL.
-3. Reinicie o servidor para carregar a configuração.
+1. Aplique [`db/schema.sql`](db/schema.sql) no banco PostgreSQL.
+2. Reinicie o servidor local ou faça novo deploy para carregar as variáveis.
 
-Se `DATABASE_URL` estiver ausente ou a consulta falhar, o site mantém o catálogo local de `lib/products.ts` como fallback. O pool de conexões é limitado para uso em servidor.
+Se a configuração estiver ausente ou a consulta falhar, o site mantém o catálogo local de `lib/products.ts` como fallback. O pool de conexões é limitado para uso em servidor.
 
 ## Administração
 
 O painel fica em `/admin`. Administradores podem cadastrar, editar, ocultar e remover camisas; também podem criar, editar, desativar e remover usuários. Editores podem gerenciar produtos, mas não usuários.
 
-1. Configure `DATABASE_URL` para o PostgreSQL e execute `db/admin-schema.sql` uma vez nesse banco.
+1. Configure a conexão PostgreSQL usando as variáveis `PG*` ou `DATABASE_URL` e execute `db/admin-schema.sql` uma vez nesse banco.
 2. Para criar o primeiro administrador, preencha `ADMIN_NAME`, `ADMIN_EMAIL` e `ADMIN_PASSWORD` em `.env.local` (senha com no mínimo 12 caracteres) e execute `npm run admin:create`.
 3. Remova as três variáveis de provisionamento após criar a conta. O comando não altera contas existentes.
 4. Acesse `/admin/login`. As sessões usam cookie HTTP-only e expiram após 8 horas; tentativas de login por e-mail são bloqueadas por 15 minutos após cinco erros.

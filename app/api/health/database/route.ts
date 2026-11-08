@@ -22,9 +22,12 @@ export async function GET() {
   try {
     const pool = getPool();
     if (!pool) {
-      return unavailable("DATABASE_URL não está configurada no ambiente do deploy.", {
+      return unavailable(
+        "Configure DATABASE_URL ou todas as variáveis PGHOST, PGDATABASE, PGUSER e PGPASSWORD.",
+        {
         database: "not_configured",
-      });
+        }
+      );
     }
 
     await pool.query("SELECT 1");
