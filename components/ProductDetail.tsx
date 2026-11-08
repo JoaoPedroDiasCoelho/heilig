@@ -28,7 +28,7 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
   }, [sizeGuideOpen]);
 
   function buy() {
-    if (!size) return;
+    if (!size || product.stock[size] < 1) return;
     window.open(
       waLink(
         `Olá! Tenho interesse na ${product.name}, tamanho ${size}. Poderia me ajudar?\n${absoluteUrl(`/produto/${product.id}`)}`
@@ -57,6 +57,13 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
                   className="size-pill"
                   key={item}
                   type="button"
+                  disabled={product.stock[item] === 0}
+                  title={product.stock[item] === 0 ? "Tamanho esgotado" : undefined}
+                  aria-label={
+                    product.stock[item] === 0
+                      ? `Tamanho ${item}, esgotado`
+                      : `Tamanho ${item}`
+                  }
                   aria-pressed={size === item}
                   onClick={() => setSize(item)}
                 >
@@ -71,10 +78,19 @@ export default function ProductDetail({ product, images }: ProductDetailProps) {
           </button>
 
           <p className="pdp-hint" aria-live="polite">
-            {size ? `Tamanho selecionado: ${size}` : "Selecione um tamanho para continuar."}
+            {size
+              ? `Tamanho selecionado: ${size} · ${product.stock[size]} disponíveis`
+              : SIZES.every((item) => product.stock[item] === 0)
+                ? "Todos os tamanhos estão esgotados."
+                : "Selecione um tamanho disponível para continuar."}
           </p>
 
-          <button className="button pdp-cta" type="button" disabled={!size} onClick={buy}>
+          <button
+            className="button pdp-cta"
+            type="button"
+            disabled={!size || product.stock[size] < 1}
+            onClick={buy}
+          >
             <WhatsAppIcon />
             Comprar pelo WhatsApp
           </button>

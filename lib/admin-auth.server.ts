@@ -83,7 +83,6 @@ export async function getCurrentAdmin(): Promise<AdminUser | null> {
 
   if (!result.rows[0]) {
     await pool.query("DELETE FROM public.admin_sessions WHERE token_hash = $1", [tokenHash]);
-    cookieStore.delete(SESSION_COOKIE);
     return null;
   }
 

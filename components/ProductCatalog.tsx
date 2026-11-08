@@ -44,7 +44,8 @@ export default function ProductCatalog({ products }: ProductCatalogProps) {
         product.price <= priceRange[1] &&
         (selectedColors.length === 0 || selectedColors.includes(product.color)) &&
         (selectedCategories.length === 0 || selectedCategories.includes(product.category)) &&
-        (selectedSizes.length === 0 || SIZES.some((size) => selectedSizes.includes(size)))
+        (selectedSizes.length === 0 ||
+          selectedSizes.some((size) => product.stock[size] > 0))
     );
     if (sortOrder === "asc") return filtered.sort((a, b) => a.price - b.price || a.id - b.id);
     if (sortOrder === "desc") return filtered.sort((a, b) => b.price - a.price || a.id - b.id);
@@ -209,6 +210,13 @@ export default function ProductCatalog({ products }: ProductCatalogProps) {
                         <button
                           key={size}
                           type="button"
+                          disabled={product.stock[size] === 0}
+                          title={product.stock[size] === 0 ? `Tamanho ${size} esgotado` : undefined}
+                          aria-label={
+                            product.stock[size] === 0
+                              ? `Tamanho ${size}, esgotado`
+                              : `Tamanho ${size}`
+                          }
                           aria-pressed={selectedProductSizes[product.id] === size}
                           onClick={() => selectProductSize(product.id, size)}
                         >
@@ -216,6 +224,9 @@ export default function ProductCatalog({ products }: ProductCatalogProps) {
                         </button>
                       ))}
                     </div>
+                    {SIZES.every((size) => product.stock[size] === 0) && (
+                      <p className="catalog-out-of-stock">Todos os tamanhos esgotados</p>
+                    )}
                     <a
                       className="button catalog-buy-button"
                       href={

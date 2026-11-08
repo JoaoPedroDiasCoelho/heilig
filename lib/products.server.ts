@@ -1,7 +1,14 @@
 import "server-only";
 
 import { cache } from "react";
-import { PRODUCTS, type Product, type ProductCategory, type ProductImage } from "@/lib/products";
+import {
+  PRODUCTS,
+  SIZES,
+  type Product,
+  type ProductCategory,
+  type ProductImage,
+  type Size,
+} from "@/lib/products";
 import { getPool } from "@/lib/db.server";
 
 type ProductRow = {
@@ -12,9 +19,18 @@ type ProductRow = {
   image: string;
   category: ProductCategory;
   featured: boolean;
+  stock: Partial<Record<Size, number>>;
 };
 
+const EMPTY_STOCK: Record<Size, number> = { P: 0, M: 0, G: 0, GG: 0, EXG: 0 };
+
 function toProduct(row: ProductRow): Product {
+  const stock = { ...EMPTY_STOCK };
+  for (const size of SIZES) {
+    const quantity = Number(row.stock?.[size]);
+    stock[size] = Number.isSafeInteger(quantity) && quantity >= 0 ? quantity : 0;
+  }
+
   return {
     id: Number(row.id),
     name: row.name,
@@ -23,11 +39,18 @@ function toProduct(row: ProductRow): Product {
     image: row.image,
     category: row.category,
     featured: row.featured,
+    stock,
   };
 }
 
 const SELECT_PRODUCTS = `
-  SELECT id, name, price::float8 AS price, color, image, category, featured
+  SELECT products.id, name, price::float8 AS price, color, image, category, featured,
+         COALESCE(
+           (SELECT jsonb_object_agg(size, quantity)
+            FROM public.product_stock
+            WHERE product_id = products.id),
+           '{"P":0,"M":0,"G":0,"GG":0,"EXG":0}'::jsonb
+         ) AS stock
   FROM public.products
   WHERE active = TRUE
 `;

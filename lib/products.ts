@@ -7,8 +7,11 @@ export type Product = {
   image: string;
   category: ProductCategory;
   featured: boolean;
+  stock: Record<Size, number>;
 };
 export type ProductImage = { id: number | string; imageUrl: string };
+
+const EMPTY_STOCK: Record<Size, number> = { P: 0, M: 0, G: 0, GG: 0, EXG: 0 };
 
 export const PRODUCTS: Product[] = [
   {
@@ -18,7 +21,8 @@ export const PRODUCTS: Product[] = [
     "color": "Branco",
     "image": "/products/product-1.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   },
   {
     "id": 2,
@@ -27,7 +31,8 @@ export const PRODUCTS: Product[] = [
     "color": "Preto",
     "image": "/products/product-2.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   },
   {
     "id": 3,
@@ -36,7 +41,8 @@ export const PRODUCTS: Product[] = [
     "color": "Cinza",
     "image": "/products/product-3.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   },
   {
     "id": 4,
@@ -45,7 +51,8 @@ export const PRODUCTS: Product[] = [
     "color": "Verde militar",
     "image": "/products/product-4.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   },
   {
     "id": 5,
@@ -54,7 +61,8 @@ export const PRODUCTS: Product[] = [
     "color": "Branco",
     "image": "/products/product-5.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   },
   {
     "id": 6,
@@ -63,7 +71,8 @@ export const PRODUCTS: Product[] = [
     "color": "Preto",
     "image": "/products/product-6.webp",
     "category": "camisa",
-    "featured": true
+    "featured": true,
+    "stock": { ...EMPTY_STOCK }
   }
 ];
 

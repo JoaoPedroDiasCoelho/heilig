@@ -71,7 +71,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
       url: productUrl,
       priceCurrency: "BRL",
       price: product.price.toFixed(2),
-      availability: "https://schema.org/InStock",
+      availability: Object.values(product.stock).some((quantity) => quantity > 0)
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
   };

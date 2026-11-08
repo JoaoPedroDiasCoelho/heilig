@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import type { Product, ProductCategory } from "@/lib/products";
+import { SIZES, type Product, type ProductCategory } from "@/lib/products";
 import { createProductAction, updateProductAction } from "@/app/admin/actions";
 import {
   MAX_PRODUCT_IMAGES,
@@ -160,6 +160,30 @@ export default function ProductForm({ product, error }: ProductFormProps) {
           ))}
         </select>
       </label>
+      <section className="admin-stock-manager" aria-labelledby="admin-stock-heading">
+        <div>
+          <p className="admin-eyebrow">Disponibilidade</p>
+          <h2 id="admin-stock-heading">Estoque por tamanho</h2>
+          <p>Informe quantas unidades estão disponíveis em cada tamanho.</p>
+        </div>
+        <div className="admin-stock-grid">
+          {SIZES.map((size) => (
+            <label key={size}>
+              {size}
+              <input
+                name={`stock_${size}`}
+                type="number"
+                min="0"
+                max="1000000"
+                step="1"
+                required
+                defaultValue={product?.stock[size] ?? 0}
+                aria-label={`Unidades disponíveis no tamanho ${size}`}
+              />
+            </label>
+          ))}
+        </div>
+      </section>
       {!product ? (
         <>
           <section className="admin-image-manager admin-product-image-picker" aria-labelledby="new-product-images-heading">

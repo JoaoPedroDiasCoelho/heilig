@@ -52,9 +52,9 @@ Os arquivos são enviados diretamente ao Cloudinary usando uma assinatura tempor
 
 ### Destaques e catálogo de produtos
 
-Depois de aplicar `db/schema.sql`, execute `db/admin-schema.sql`, `db/product-images.sql` e `db/product-catalog.sql` uma vez no mesmo PostgreSQL. A migração de catálogo adiciona os campos de destaque e categoria. Os produtos existentes começam em destaque, preservando a home atual; produtos novos podem ser classificados como camisa, boné ou moletom no admin.
+Depois de aplicar `db/schema.sql`, execute `db/admin-schema.sql`, `db/product-images.sql`, `db/product-catalog.sql` e `db/product-stock.sql` uma vez no mesmo PostgreSQL. A migração de catálogo adiciona os campos de destaque e categoria. Os produtos existentes começam em destaque, preservando a home atual; produtos novos podem ser classificados como camisa, boné ou moletom no admin.
 
-O interruptor “Destaque” do admin controla os produtos mostrados na home. A página `/produtos` mostra todos os produtos ativos, incluindo os que também estão em destaque na home, e permite filtrar por faixa de preço, cor e tipo. Ativar um produto e destacá-lo são opções separadas; para aparecer na loja, ele precisa estar ativo e ter imagem.
+O interruptor “Destaque” do admin controla os produtos mostrados na home. A página `/produtos` mostra todos os produtos ativos, incluindo os que também estão em destaque na home, e permite filtrar por faixa de preço, cor, tipo e tamanho. O estoque é gerenciado por tamanho (P, M, G, GG e EXG) na criação ou edição do produto; produtos existentes começam com zero em todos os tamanhos após a migração, então atualize as quantidades antes de oferecê-los. Tamanhos sem estoque ficam indisponíveis para seleção na loja. Como os pedidos são concluídos manualmente pelo WhatsApp, o estoque não é reduzido automaticamente.
 
 ## WhatsApp
 

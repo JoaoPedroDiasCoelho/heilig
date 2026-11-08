@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { destroyCloudinaryAsset, getCloudinarySignature, isValidCloudinaryAsset } from "@/lib/cloudinary.server";
 import { requirePool } from "@/lib/db.server";
-import type { ProductCategory } from "@/lib/products";
+import { SIZES, type ProductCategory, type Size } from "@/lib/products";
 import {
   createAdminSession,
   destroyAdminSession,
@@ -24,6 +24,7 @@ type ProductInput = {
   sortOrder: number;
   active: boolean;
   featured: boolean;
+  stock: Record<Size, number>;
 };
 
 function value(formData: FormData, key: string) {
@@ -48,6 +49,7 @@ function parseProduct(formData: FormData, requireImage = true): ProductInput | n
   const category = value(formData, "category");
   const sortOrderValue = value(formData, "sort_order");
   const sortOrder = Number(sortOrderValue || "0");
+  const stock: Record<Size, number> = { P: 0, M: 0, G: 0, GG: 0, EXG: 0 };
 
   if (!name || name.length > 120) return null;
   if (!/^\d{1,8}(?:\.\d{1,2})?$/.test(price)) return null;
@@ -56,6 +58,11 @@ function parseProduct(formData: FormData, requireImage = true): ProductInput | n
   if (requireImage && !image) return null;
   if (image && (image.length > 2048 || image.includes("\\"))) return null;
   if (!Number.isSafeInteger(sortOrder) || sortOrder < 0 || sortOrder > 1_000_000) return null;
+  for (const size of SIZES) {
+    const quantity = value(formData, `stock_${size}`);
+    if (!/^\d{1,7}$/.test(quantity) || Number(quantity) > 1_000_000) return null;
+    stock[size] = Number(quantity);
+  }
 
   if (image) {
     if (image.startsWith("/")) {
@@ -79,6 +86,7 @@ function parseProduct(formData: FormData, requireImage = true): ProductInput | n
     sortOrder,
     active: formData.get("active") === "on",
     featured: formData.get("featured") === "on",
+    stock,
   };
 }
 
@@ -189,6 +197,13 @@ export async function createProductAction(formData: FormData) {
         [id, product.image]
       );
     }
+    for (const size of SIZES) {
+      await client.query(
+        `INSERT INTO public.product_stock (product_id, size, quantity)
+         VALUES ($1, $2, $3)`,
+        [id, size, product.stock[size]]
+      );
+    }
     await client.query("COMMIT");
     createdId = id;
   } catch (error) {
@@ -198,7 +213,9 @@ export async function createProductAction(formData: FormData) {
     client.release();
   }
   revalidatePath("/");
+  revalidatePath("/produtos");
   revalidatePath("/admin/products");
+  revalidatePath(`/produto/${createdId}`);
   revalidatePath("/sitemap.xml");
   return { success: true as const, productId: createdId };
 }
@@ -211,27 +228,53 @@ export async function updateProductAction(formData: FormData) {
     withError(`/admin/products/${value(formData, "id")}/edit`, "Revise os campos do produto.");
   }
 
-  const result = await requirePool().query(
-    `UPDATE public.products
-     SET name = $1, price = $2, color = $3, category = $4, sort_order = $5,
-         active = $6, featured = $7, updated_at = now()
-     WHERE id = $8`,
-    [
-      product.name,
-      product.price,
-      product.color,
-      product.category,
-      product.sortOrder,
-      product.active,
-      product.featured,
-      id,
-    ]
-  );
-  if (result.rowCount === 0) redirect("/admin/products?error=Camisa+nao+encontrada.");
+  const client = await requirePool().connect();
+  let updated = false;
+  try {
+    await client.query("BEGIN");
+    const result = await client.query(
+      `UPDATE public.products
+       SET name = $1, price = $2, color = $3, category = $4, sort_order = $5,
+           active = $6, featured = $7, updated_at = now()
+       WHERE id = $8`,
+      [
+        product.name,
+        product.price,
+        product.color,
+        product.category,
+        product.sortOrder,
+        product.active,
+        product.featured,
+        id,
+      ]
+    );
+    updated = result.rowCount !== 0;
+    if (updated) {
+      for (const size of SIZES) {
+        await client.query(
+          `INSERT INTO public.product_stock (product_id, size, quantity)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (product_id, size) DO UPDATE
+           SET quantity = EXCLUDED.quantity, updated_at = now()`,
+          [id, size, product.stock[size]]
+        );
+      }
+      await client.query("COMMIT");
+    } else {
+      await client.query("ROLLBACK");
+    }
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+  if (!updated) redirect("/admin/products?error=Camisa+nao+encontrada.");
 
   revalidatePath("/");
   revalidatePath("/produtos");
   revalidatePath(`/produto/${id}`);
+  revalidatePath("/admin/products");
   revalidatePath("/sitemap.xml");
   redirect("/admin/products?notice=Camisa+atualizada.");
 }

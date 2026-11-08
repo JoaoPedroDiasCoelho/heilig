@@ -8,7 +8,7 @@ import {
   toggleFeaturedProductAction,
   toggleProductAction,
 } from "@/app/admin/actions";
-import type { ProductCategory } from "@/lib/products";
+import { SIZES, type ProductCategory, type Size } from "@/lib/products";
 import ConfirmSubmitButton from "@/components/admin/ConfirmSubmitButton";
 
 type ProductListItem = {
@@ -21,6 +21,7 @@ type ProductListItem = {
   sort_order: number;
   category: ProductCategory;
   featured: boolean;
+  stock: Record<Size, number>;
 };
 
 type ProductFilter = "all" | "active" | "inactive";
@@ -108,6 +109,7 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                 <th>Tipo</th>
                 <th>Cor</th>
                 <th>Preço</th>
+                <th>Estoque (P · M · G · GG · EXG)</th>
                 <th>Ativo</th>
                 <th>Destaque</th>
                 <th><span className="admin-visually-hidden">Ações</span></th>
@@ -137,6 +139,15 @@ export default function ProductsTable({ products }: ProductsTableProps) {
                     </span>
                   </td>
                   <td>{currency.format(product.price)}</td>
+                  <td>
+                    <div className="admin-stock-summary" aria-label="Estoque por tamanho">
+                      {SIZES.map((size) => (
+                        <span key={size} data-empty={product.stock[size] === 0}>
+                          <b>{size}</b> {product.stock[size]}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
                   <td>
                     <form action={toggleProductAction}>
                       <input type="hidden" name="id" value={product.id} />

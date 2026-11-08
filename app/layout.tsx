@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo } from "next/font/google";
+import { Archivo, Permanent_Marker } from "next/font/google";
 import ScrollToTopOnReload from "@/components/ScrollToTopOnReload";
 import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
@@ -9,6 +9,13 @@ const archivo = Archivo({
   weight: "variable",
   axes: ["wdth"],
   variable: "--font-archivo",
+  display: "swap",
+});
+
+const permanentMarker = Permanent_Marker({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-permanent-marker",
   display: "swap",
 });
 
@@ -30,7 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className={archivo.variable}>
+      <body className={`${archivo.variable} ${permanentMarker.variable}`}>
         <ScrollToTopOnReload />
         {children}
       </body>

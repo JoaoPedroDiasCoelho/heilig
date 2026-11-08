@@ -5,6 +5,7 @@ import ProductImagesManager from "@/components/admin/ProductImagesManager";
 import ProductForm from "@/components/admin/ProductForm";
 import { requireAdminUser } from "@/lib/admin-auth.server";
 import { requirePool } from "@/lib/db.server";
+import type { Size } from "@/lib/products";
 
 type EditProductPageProps = {
   params: Promise<{ id: string }>;
@@ -27,8 +28,15 @@ export default async function EditProductPage({ params, searchParams }: EditProd
     sort_order: number;
     category: "camisa" | "bone" | "moletom";
     featured: boolean;
+    stock: Record<Size, number>;
   }>(
-    `SELECT id, name, price::float8 AS price, color, image, active, sort_order, category, featured
+    `SELECT products.id, name, price::float8 AS price, color, image, active, sort_order, category, featured,
+            COALESCE(
+              (SELECT jsonb_object_agg(size, quantity)
+               FROM public.product_stock
+               WHERE product_id = products.id),
+              '{"P":0,"M":0,"G":0,"GG":0,"EXG":0}'::jsonb
+            ) AS stock
      FROM public.products WHERE id = $1 LIMIT 1`,
     [productId]
   );

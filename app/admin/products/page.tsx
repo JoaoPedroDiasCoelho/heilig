@@ -3,6 +3,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import ProductsTable from "@/components/admin/ProductsTable";
 import { requireAdminUser } from "@/lib/admin-auth.server";
 import { requirePool } from "@/lib/db.server";
+import type { Size } from "@/lib/products";
 
 type ProductRow = {
   id: number;
@@ -14,6 +15,7 @@ type ProductRow = {
   sort_order: number;
   category: "camisa" | "bone" | "moletom";
   featured: boolean;
+  stock: Record<Size, number>;
 };
 
 type ProductsPageProps = {
@@ -25,7 +27,13 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
   const [{ error, notice }, result] = await Promise.all([
     searchParams,
     requirePool().query<ProductRow>(
-      `SELECT id, name, price::float8 AS price, color, image, active, sort_order, category, featured
+      `SELECT products.id, name, price::float8 AS price, color, image, active, sort_order, category, featured,
+              COALESCE(
+                (SELECT jsonb_object_agg(size, quantity)
+                 FROM public.product_stock
+                 WHERE product_id = products.id),
+                '{"P":0,"M":0,"G":0,"GG":0,"EXG":0}'::jsonb
+              ) AS stock
        FROM public.products ORDER BY sort_order, id`
     ),
   ]);

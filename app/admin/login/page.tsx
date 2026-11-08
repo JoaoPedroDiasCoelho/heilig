@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { loginAction } from "@/app/admin/actions";
+import AdminLoginForm from "@/components/admin/AdminLoginForm";
 import { getCurrentAdmin } from "@/lib/admin-auth.server";
 
 type LoginPageProps = {
@@ -13,23 +13,32 @@ export default async function AdminLoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="admin-login-page">
-      <form className="admin-login-card" action={loginAction}>
-        <Link className="admin-brand" href="/admin/login">HEILIG® <span>ADMIN</span></Link>
-        <p className="admin-eyebrow">Área restrita</p>
-        <h1>Acesse sua conta</h1>
-        {notice && <p className="admin-alert admin-alert-success">{notice}</p>}
-        {error && <p className="admin-alert admin-alert-error" role="alert">{error}</p>}
-        <label>
-          E-mail
-          <input name="email" type="email" autoComplete="username" required />
-        </label>
-        <label>
-          Senha
-          <input name="password" type="password" autoComplete="current-password" required />
-        </label>
-        <button className="admin-button" type="submit">Entrar</button>
-        <Link className="admin-muted-link" href="/">Voltar para a loja</Link>
-      </form>
+      <header className="admin-login-header">
+        <Link className="admin-login-brand" href="/admin/login" aria-label="HEILIG, administração">
+          HEILIG<sup>®</sup>
+        </Link>
+      </header>
+
+      <div className="admin-login-content">
+        <section className="admin-login-intro" aria-label="Acesso restrito ao painel HEILIG">
+          <h1>
+            ACESSO
+            <br />
+            <em>RESTRITO.</em>
+          </h1>
+          <p>PAINEL ADMINISTRATIVO HEILIG®</p>
+        </section>
+
+        <section className="admin-login-panel" aria-labelledby="admin-login-heading">
+          <div className="admin-login-panel-heading">
+            <p className="admin-login-eyebrow"><i /> ÁREA RESTRITA / 01</p>
+            <h2 id="admin-login-heading">Bem-vindo de volta.</h2>
+            <p>Entre para acessar o painel administrativo.</p>
+          </div>
+          <AdminLoginForm error={error} notice={notice} />
+        </section>
+      </div>
+
     </main>
   );
 }

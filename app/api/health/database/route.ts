@@ -9,6 +9,7 @@ const requiredTables = [
   { name: "admin_sessions", migration: "db/admin-schema.sql" },
   { name: "admin_login_attempts", migration: "db/admin-schema.sql" },
   { name: "product_images", migration: "db/product-images.sql" },
+  { name: "product_stock", migration: "db/product-stock.sql" },
 ] as const;
 
 function unavailable(message: string, details: Record<string, unknown> = {}) {
