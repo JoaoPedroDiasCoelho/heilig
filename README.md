@@ -22,7 +22,7 @@ Abra `http://localhost:3000`.
 
 ## Catálogo PostgreSQL
 
-O catálogo da home, as páginas de produto e o sitemap leem `public.products` no servidor. Para conectar, configure `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` e `PGSSLMODE=require` em `.env.local` e nas variáveis privadas do ambiente de deploy. Para Supabase, use os valores de conexão PostgreSQL exibidos no painel do projeto. Quando os campos `PG*` estiverem completos, eles têm prioridade sobre `DATABASE_URL`. Como alternativa, configure somente `DATABASE_URL` com a connection string completa.
+O catálogo da home, as páginas de produto e o sitemap leem `public.products` no servidor. Para conectar, configure `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` e `PGSSLMODE=require` em `.env.local` e nas variáveis privadas do ambiente de deploy. No Supabase, use os parâmetros de conexão **Session pooler** (especialmente em ambientes IPv4 como a Vercel). Quando os campos `PG*` estiverem completos, eles têm prioridade sobre `DATABASE_URL`. Como alternativa, configure somente `DATABASE_URL` com a connection string completa.
 
 1. Aplique [`db/schema.sql`](db/schema.sql) no banco PostgreSQL.
 2. Reinicie o servidor local ou faça novo deploy para carregar as variáveis.
